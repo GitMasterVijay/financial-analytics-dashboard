@@ -5,6 +5,7 @@ import { config } from './config/index.js';
 import { errorHandler, notFoundHandler } from './middleware/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
+import transactionRoutes from './routes/transactionRoutes.js';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

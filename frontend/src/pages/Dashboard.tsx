@@ -9,7 +9,7 @@ function Dashboard() {
         </Typography>
         <Paper sx={{ p: 4 }}>
           <Typography variant="body1" color="text.secondary">
-            Dashboard content will be implemented in a later step.
+            Dashboard charts and summary metrics will be implemented in a later step.
           </Typography>
         </Paper>
       </Box>

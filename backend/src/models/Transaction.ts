@@ -14,24 +14,29 @@ const transactionSchema = new Schema<TransactionDocument>(
     date: {
       type: Date,
       required: true,
+      index: true,
     },
     amount: {
       type: Number,
       required: true,
+      index: true,
     },
     category: {
       type: String,
       enum: ['Revenue', 'Expense'],
       required: true,
+      index: true,
     },
     status: {
       type: String,
       enum: ['Paid', 'Pending'],
       required: true,
+      index: true,
     },
     user_id: {
       type: String,
       required: true,
+      index: true,
     },
     user_profile: {
       type: String,
@@ -46,3 +51,4 @@ const transactionSchema = new Schema<TransactionDocument>(
 const Transaction = model<TransactionDocument>('Transaction', transactionSchema);
 
 export default Transaction;
+

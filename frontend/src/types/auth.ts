@@ -12,3 +12,32 @@ export const loginSchema = z.object({
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
+
+export type UserRole = 'analyst';
+
+export interface AuthenticatedUser {
+  email: string;
+  role: UserRole;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  success: boolean;
+  token: string;
+  user: AuthenticatedUser;
+}
+
+export interface MeResponse {
+  success: boolean;
+  message: string;
+  data: AuthenticatedUser;
+}
+
+export interface ApiErrorResponse {
+  success: boolean;
+  message: string;
+}

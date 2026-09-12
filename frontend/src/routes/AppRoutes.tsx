@@ -1,7 +1,9 @@
 import { Navigate, createBrowserRouter } from 'react-router-dom';
-import Login from '../pages/Login';
+import AppLayout from '../components/AppLayout';
 import Dashboard from '../pages/Dashboard';
+import Login from '../pages/Login';
 import Transactions from '../pages/Transactions';
+import ProtectedRoute from './ProtectedRoute';
 
 const router = createBrowserRouter([
   {
@@ -14,11 +16,23 @@ const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    element: <Dashboard />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout>
+          <Dashboard />
+        </AppLayout>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/transactions',
-    element: <Transactions />,
+    element: (
+      <ProtectedRoute>
+        <AppLayout>
+          <Transactions />
+        </AppLayout>
+      </ProtectedRoute>
+    ),
   },
 ]);
 

@@ -1,5 +1,6 @@
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { RouterProvider } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
 import router from './routes/AppRoutes';
 
 const theme = createTheme({
@@ -12,7 +13,9 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

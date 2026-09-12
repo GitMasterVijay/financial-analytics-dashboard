@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
+  Alert,
   Box,
   Button,
   Container,
@@ -14,7 +15,8 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { type LoginFormData, loginSchema } from '../types/auth';
 
 const theme = createTheme({
@@ -56,14 +58,18 @@ const VisibilityOffIcon = () => (
 );
 
 function Login() {
+  const { isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/dashboard';
+
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -73,12 +79,18 @@ function Login() {
     mode: 'onTouched',
   });
 
-  const onSubmit = async (_data: LoginFormData) => {
-    setIsSubmitting(true);
-    // Simulate async submission; API integration will be added in a later step
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    setIsSubmitting(false);
-    navigate('/dashboard');
+  const onSubmit = async (data: LoginFormData) => {
+    setErrorMessage(null);
+    try {
+      await login(data.email, data.password);
+      navigate(from, { replace: true });
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      } else {
+        setErrorMessage('Sign in failed. Please try again.');
+      }
+    }
   };
 
   const handleClickShowPassword = () => {
@@ -88,6 +100,14 @@ function Login() {
   const handleMouseDownPassword = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
   };
+
+  if (isLoading) {
+    return null;
+  }
+
+  if (isAuthenticated) {
+    return <Navigate to={from} replace />;
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -138,6 +158,12 @@ function Login() {
                 Dashboard
               </Typography>
             </Box>
+
+            {errorMessage !== null && (
+              <Alert severity="error" sx={{ mb: 3 }}>
+                {errorMessage}
+              </Alert>
+            )}
 
             <Box
               component="form"
