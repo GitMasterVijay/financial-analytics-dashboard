@@ -2,6 +2,8 @@ import axios, { AxiosError, type AxiosInstance, type AxiosResponse, type Interna
 import type { ApiErrorResponse, LoginRequest, LoginResponse, MeResponse } from '../types/auth';
 
 const TOKEN_KEY = 'financial_analytics_token';
+export const AUTH_UNAUTHORIZED_EVENT = 'financial_analytics:unauthorized';
+export const AUTH_EVENT_CHANNEL = 'financial_analytics_auth_channel';
 
 function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
@@ -40,6 +42,16 @@ apiClient.interceptors.response.use(
     if (error instanceof AxiosError) {
       if (error.response?.status === 401) {
         clearToken();
+        try {
+          window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT));
+          if (typeof BroadcastChannel !== 'undefined') {
+            const channel = new BroadcastChannel(AUTH_EVENT_CHANNEL);
+            channel.postMessage({ type: 'logout' });
+            channel.close();
+          }
+        } catch {
+          // no-op
+        }
       }
     }
     return Promise.reject(error);
@@ -49,26 +61,58 @@ apiClient.interceptors.response.use(
 export function extractErrorMessage(error: unknown): string {
   if (error instanceof AxiosError) {
     const responseData = error.response?.data as ApiErrorResponse | undefined;
-    if (responseData?.message) {
-      if (error.response?.status === 401 && (responseData.message.toLowerCase().includes('email') || responseData.message.toLowerCase().includes('password'))) {
-        return 'Invalid email or password';
-      }
-      if (error.code === AxiosError.ERR_NETWORK || !error.response) {
-        return 'Unable to connect to the server. Please check your network and try again.';
-      }
-      return responseData.message;
+    const status = error.response?.status;
+    const code = error.code;
+
+    if (code === AxiosError.ERR_NETWORK || !error.response) {
+      return 'Unable to connect to server. Please check your network connection and try again.';
     }
-    if (error.code === AxiosError.ERR_NETWORK || !error.response) {
-      return 'Unable to connect to the server. Please check your network and try again.';
+
+    if (code === AxiosError.ETIMEDOUT || error.message?.toLowerCase().includes('timeout')) {
+      return 'Request timed out. Please try again.';
     }
-    if (error.response.status === 401) {
+
+    if (code === AxiosError.ERR_CANCELED) {
+      return 'Request was cancelled.';
+    }
+
+    if (status === 400) {
+      if (responseData?.message) {
+        return responseData.message;
+      }
+      return 'Invalid request. Please check your filters and try again.';
+    }
+
+    if (status === 401) {
+      if (responseData?.message) {
+        const msg = responseData.message.toLowerCase();
+        if (msg.includes('email') || msg.includes('password')) {
+          return 'Invalid email or password.';
+        }
+      }
       return 'Your session has expired. Please sign in again.';
+    }
+
+    if (status === 403) {
+      return 'Access denied. You do not have permission to perform this action.';
+    }
+
+    if (status === 404) {
+      return responseData?.message ?? 'Requested resource was not found.';
+    }
+
+    if (status && status >= 500) {
+      return 'Server error. Please try again in a moment.';
+    }
+
+    if (responseData?.message) {
+      return responseData.message;
     }
   }
   if (error instanceof Error) {
     return error.message;
   }
-  return 'An unexpected error occurred. Please try again.';
+  return 'Something went wrong. Please try again.';
 }
 
 export const authApi = {

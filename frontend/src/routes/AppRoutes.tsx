@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import Dashboard from '../pages/Dashboard';
 import Login from '../pages/Login';
+import NotFound from '../pages/NotFound';
 import Transactions from '../pages/Transactions';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -33,6 +34,10 @@ const router = createBrowserRouter([
         </AppLayout>
       </ProtectedRoute>
     ),
+  },
+  {
+    path: '*',
+    element: <NotFound />,
   },
 ]);
 

@@ -1,6 +1,7 @@
 import type { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { AppError, NotFoundError } from '../utils/errors.js';
 import { createErrorResponse } from '../utils/response.js';
+import { config } from '../config/index.js';
 
 export function notFoundHandler(req: Request, _res: Response, next: NextFunction): void {
   next(new NotFoundError(`Route ${req.originalUrl} not found`));
@@ -18,10 +19,18 @@ export const errorHandler: ErrorRequestHandler = (
   }
 
   let message = 'Internal Server Error';
-  if (err instanceof Error) {
-    message = err.message;
-  } else if (typeof err === 'string') {
-    message = err;
+
+  if (config.nodeEnv !== 'production') {
+    if (err instanceof Error) {
+      message = err.message;
+    } else if (typeof err === 'string') {
+      message = err;
+    }
+  }
+
+  if (config.nodeEnv !== 'production' && err instanceof Error && err.stack) {
+    // eslint-disable-next-line no-console
+    console.error('[errorHandler] Stack:', err.stack);
   }
 
   res.status(500).json(createErrorResponse(message));

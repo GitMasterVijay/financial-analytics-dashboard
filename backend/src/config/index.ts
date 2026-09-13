@@ -3,7 +3,7 @@ import 'dotenv/config';
 interface EnvConfig {
   port: number;
   nodeEnv: string;
-  corsOrigin: string;
+  corsOrigin: string | string[];
   mongodbUri: string;
   jwtSecret: string;
   jwtExpiresIn: string;
@@ -22,10 +22,28 @@ function getEnvVar(key: string, defaultValue?: string): string {
   return value;
 }
 
+function parseCorsOrigin(raw: string): string | string[] {
+  const trimmed = raw.trim();
+  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        return parsed.filter((x: unknown) => typeof x === 'string') as string[];
+      }
+    } catch {
+      // fall through
+    }
+  }
+  if (trimmed.includes(',')) {
+    return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return trimmed;
+}
+
 export const config: EnvConfig = {
   port: parseInt(getEnvVar('PORT', '5000'), 10),
   nodeEnv: getEnvVar('NODE_ENV', 'development'),
-  corsOrigin: getEnvVar('CORS_ORIGIN', 'http://localhost:5173'),
+  corsOrigin: parseCorsOrigin(getEnvVar('CORS_ORIGIN', 'http://localhost:5173')),
   mongodbUri: getEnvVar('MONGODB_URI', 'mongodb://localhost:27017/financial-analytics-db'),
   jwtSecret: getEnvVar('JWT_SECRET'),
   jwtExpiresIn: getEnvVar('JWT_EXPIRES_IN', '24h'),

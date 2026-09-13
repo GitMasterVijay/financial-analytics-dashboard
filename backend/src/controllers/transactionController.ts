@@ -1,5 +1,11 @@
 import type { Request, Response } from 'express';
 import { getTransactionList } from '../services/transactionService.js';
+import {
+  exportTransactionsToCsv,
+  EXPORT_COLUMN_WHITELIST,
+  type ExportColumnKey,
+  type ExportFilters,
+} from '../services/exportCsvService.js';
 import { AppError } from '../utils/errors.js';
 import { createSuccessResponse } from '../utils/response.js';
 import { ALLOWED_SORT_FIELDS } from '../types/transaction.js';
@@ -96,4 +102,149 @@ export async function listTransactions(req: Request, res: Response): Promise<voi
   const result = await getTransactionList(filters);
 
   res.status(200).json(createSuccessResponse('Transactions retrieved successfully', result));
+}
+
+function parseExportFiltersFromQuery(req: Request): ExportFilters {
+  const { query } = req;
+  const filters: ExportFilters = {};
+
+  filters.search =
+    typeof query.search === 'string' && query.search !== ''
+      ? query.search
+      : undefined;
+
+  const startRaw =
+    typeof query.startDate === 'string' && query.startDate !== ''
+      ? query.startDate
+      : undefined;
+  const endRaw =
+    typeof query.endDate === 'string' && query.endDate !== ''
+      ? query.endDate
+      : undefined;
+
+  if (startRaw !== undefined) {
+    const d = new Date(startRaw);
+    if (Number.isNaN(d.getTime())) {
+      throw new AppError('startDate must be a valid date in YYYY-MM-DD format', 400);
+    }
+    filters.startDate = d;
+  }
+  if (endRaw !== undefined) {
+    const d = new Date(endRaw);
+    if (Number.isNaN(d.getTime())) {
+      throw new AppError('endDate must be a valid date in YYYY-MM-DD format', 400);
+    }
+    filters.endDate = d;
+  }
+
+  if (
+    filters.startDate !== undefined &&
+    filters.endDate !== undefined &&
+    filters.startDate > filters.endDate
+  ) {
+    throw new AppError('startDate cannot be later than endDate', 400);
+  }
+
+  const minRaw =
+    typeof query.minAmount === 'string' && query.minAmount !== ''
+      ? query.minAmount
+      : undefined;
+  const maxRaw =
+    typeof query.maxAmount === 'string' && query.maxAmount !== ''
+      ? query.maxAmount
+      : undefined;
+  if (minRaw !== undefined) {
+    const n = Number(minRaw);
+    if (Number.isNaN(n) || !Number.isFinite(n)) {
+      throw new AppError('minAmount must be a valid number', 400);
+    }
+    filters.minAmount = n;
+  }
+  if (maxRaw !== undefined) {
+    const n = Number(maxRaw);
+    if (Number.isNaN(n) || !Number.isFinite(n)) {
+      throw new AppError('maxAmount must be a valid number', 400);
+    }
+    filters.maxAmount = n;
+  }
+
+  if (
+    filters.minAmount !== undefined &&
+    filters.maxAmount !== undefined &&
+    filters.minAmount > filters.maxAmount
+  ) {
+    throw new AppError('minAmount cannot be greater than maxAmount', 400);
+  }
+
+  const categoryRaw = typeof query.category === 'string' ? query.category : undefined;
+  if (categoryRaw !== undefined && categoryRaw !== '') {
+    if (categoryRaw !== 'Revenue' && categoryRaw !== 'Expense') {
+      throw new AppError('category must be Revenue or Expense', 400);
+    }
+    filters.category = categoryRaw as TransactionCategory;
+  }
+
+  const statusRaw = typeof query.status === 'string' ? query.status : undefined;
+  if (statusRaw !== undefined && statusRaw !== '') {
+    if (statusRaw !== 'Paid' && statusRaw !== 'Pending') {
+      throw new AppError('status must be Paid or Pending', 400);
+    }
+    filters.status = statusRaw as TransactionStatus;
+  }
+
+  filters.userId =
+    typeof query.userId === 'string' && query.userId !== ''
+      ? query.userId
+      : undefined;
+
+  return filters;
+}
+
+export async function exportCsv(req: Request, res: Response): Promise<void> {
+  const filters = parseExportFiltersFromQuery(req);
+
+  const rawColumns = req.query.columns;
+  let columns: ExportColumnKey[];
+  if (rawColumns === undefined) {
+    columns = [...EXPORT_COLUMN_WHITELIST];
+  } else if (Array.isArray(rawColumns)) {
+    columns = (rawColumns as string[]).filter((c) =>
+      EXPORT_COLUMN_WHITELIST.includes(c as ExportColumnKey)
+    ) as ExportColumnKey[];
+  } else if (typeof rawColumns === 'string') {
+    const split = rawColumns.split(',').map((s) => s.trim()).filter(Boolean);
+    columns = split.filter((c) =>
+      EXPORT_COLUMN_WHITELIST.includes(c as ExportColumnKey)
+    ) as ExportColumnKey[];
+  } else {
+    columns = [];
+  }
+
+  if (columns.length === 0) {
+    throw new AppError(
+      'At least one valid export column must be provided. Allowed columns: ' +
+        EXPORT_COLUMN_WHITELIST.join(', '),
+      400
+    );
+  }
+
+  const csv = await exportTransactionsToCsv(filters, columns);
+
+  const timestamp = new Date()
+    .toISOString()
+    .replace(/[:T]/g, '-')
+    .slice(0, 19);
+  const filename = `transactions-export-${timestamp}.csv`;
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader(
+    'Content-Disposition',
+    `attachment; filename="${filename}"`
+  );
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+
+  const bom = '\uFEFF';
+  res.status(200).send(bom + csv);
 }

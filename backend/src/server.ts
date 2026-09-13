@@ -4,6 +4,7 @@ import { connectDB } from './config/db.js';
 import { config } from './config/index.js';
 import { errorHandler, notFoundHandler } from './middleware/errorMiddleware.js';
 import authRoutes from './routes/authRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
 import healthRoutes from './routes/healthRoutes.js';
 import transactionRoutes from './routes/transactionRoutes.js';
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/health', healthRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/transactions', transactionRoutes);
 
 app.use(notFoundHandler);
