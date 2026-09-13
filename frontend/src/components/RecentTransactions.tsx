@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import type { Transaction } from '../types/transaction';
+import { formatCurrencyINR } from '../utils/format';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
@@ -28,11 +29,16 @@ function formatDate(iso: string): string {
 }
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(value);
+  return formatCurrencyINR(value);
+}
+
+function isValidImageUrl(url: string | undefined | null): url is string {
+  if (!url) return false;
+  return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
+}
+
+function getAvatarFallback(userId: string): string {
+  return userId.replace('user_', '');
 }
 
 function RecentTransactions({
@@ -91,6 +97,8 @@ function RecentTransactions({
                 <>
                   <ListItemAvatar className="!min-w-[56px]">
                     <Avatar
+                      src={isValidImageUrl((row as Transaction).user_profile) ? (row as Transaction).user_profile : undefined}
+                      alt={`${(row as Transaction).user_id} profile`}
                       sx={{
                         bgcolor:
                           (row as Transaction).category === 'Revenue'
@@ -102,9 +110,11 @@ function RecentTransactions({
                             : '#b91c1c',
                         width: 40,
                         height: 40,
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
                       }}
                     >
-                      <PersonIcon />
+                      {isValidImageUrl((row as Transaction).user_profile) ? undefined : (getAvatarFallback((row as Transaction).user_id) || <PersonIcon />)}
                     </Avatar>
                   </ListItemAvatar>
                   <ListItemText

@@ -8,6 +8,7 @@ import {
 } from 'recharts';
 import { Box, Skeleton, Typography } from '@mui/material';
 import type { CategoryBreakdownPoint } from '../types/dashboard';
+import { formatCurrencyINR } from '../utils/format';
 
 interface CategoryBreakdownChartProps {
   data: CategoryBreakdownPoint[];
@@ -19,12 +20,7 @@ const COLORS: Record<string, string> = {
   Expense: '#ef4444',
 };
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(value);
+const formatCurrency = (value: number) => formatCurrencyINR(value);
 
 function CategoryBreakdownChart({
   data,

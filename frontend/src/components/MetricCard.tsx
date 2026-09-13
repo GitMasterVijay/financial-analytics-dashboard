@@ -4,6 +4,7 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import SavingsIcon from '@mui/icons-material/Savings';
 import type { ReactNode } from 'react';
+import { formatCurrencyINR } from '../utils/format';
 
 export type MetricVariant = 'revenue' | 'expense' | 'balance' | 'savings';
 
@@ -47,11 +48,7 @@ const VARIANT_CONFIG: Record<
 };
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(value);
+  return formatCurrencyINR(value);
 }
 
 function MetricCard({

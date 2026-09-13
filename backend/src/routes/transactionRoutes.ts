@@ -4,7 +4,7 @@ import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
-router.get('/', authenticate, listTransactions);
 router.get('/export/csv', authenticate, exportCsv);
+router.get('/', authenticate, listTransactions);
 
 export default router;

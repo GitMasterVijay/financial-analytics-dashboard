@@ -43,8 +43,8 @@ function filtersSummary(f: ExportFilterState): string[] {
   if (f.search) parts.push(`Search: "${f.search}"`);
   if (f.startDate) parts.push(`From ${f.startDate}`);
   if (f.endDate) parts.push(`To ${f.endDate}`);
-  if (f.minAmount) parts.push(`Min $${f.minAmount}`);
-  if (f.maxAmount) parts.push(`Max $${f.maxAmount}`);
+  if (f.minAmount) parts.push(`Min ₹${f.minAmount}`);
+  if (f.maxAmount) parts.push(`Max ₹${f.maxAmount}`);
   if (f.category) parts.push(`Category: ${f.category}`);
   if (f.status) parts.push(`Status: ${f.status}`);
   if (f.userId) parts.push(`User: ${f.userId}`);

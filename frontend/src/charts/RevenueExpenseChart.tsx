@@ -17,9 +17,9 @@ interface RevenueExpenseChartProps {
 }
 
 const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('en-US', {
+  new Intl.NumberFormat('en-IN', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'INR',
     maximumFractionDigits: 0,
   }).format(value);
 
@@ -85,7 +85,7 @@ function RevenueExpenseChart({ data, loading = false }: RevenueExpenseChartProps
               />
               <YAxis
                 tickFormatter={(v: number) =>
-                  v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`
+                  v >= 1000 ? `₹${(v / 1000).toFixed(0)}k` : `₹${v}`
                 }
                 tick={{ fill: '#64748b', fontSize: 12 }}
                 tickLine={false}

@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertTitle,
+  Avatar,
   Box,
   Button,
   Chip,
@@ -28,7 +29,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SearchIcon from '@mui/icons-material/Search';
-import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ChangeEvent, type MouseEvent } from 'react';
 import { extractErrorMessage } from '../services/api';
 import { transactionService } from '../services/transactionService';
 import type {
@@ -44,6 +45,7 @@ import ExportCsvDialog from '../components/ExportCsvDialog';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from '../context/SnackbarContext';
+import { formatCurrencyINR } from '../utils/format';
 
 const USER_OPTIONS = ['user_001', 'user_002', 'user_003', 'user_004'];
 const CATEGORY_OPTIONS: TransactionCategory[] = ['Revenue', 'Expense'];
@@ -90,12 +92,24 @@ function formatDate(iso: string): string {
 }
 
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 2,
-  }).format(value);
+  return formatCurrencyINR(value);
 }
+
+function isValidImageUrl(url: string | undefined | null): url is string {
+  if (!url) return false;
+  return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
+}
+
+function getAvatarFallback(userId: string): string {
+  return userId.replace('user_', '');
+}
+
+const USER_AVATAR_COLORS: Record<string, string> = {
+  user_001: '#6366f1',
+  user_002: '#10b981',
+  user_003: '#f59e0b',
+  user_004: '#ef4444',
+};
 
 interface TransactionsProps {
   onNavigate?: unknown;
@@ -252,7 +266,7 @@ function Transactions(_props: TransactionsProps) {
     }
   };
 
-  const handlePageChange = (_event: MouseEvent<HTMLButtonElement> | null, value: number) => {
+  const handlePageChange = (_event: ChangeEvent<unknown> | MouseEvent<HTMLButtonElement> | null, value: number) => {
     setPage(value);
   };
 
@@ -480,7 +494,7 @@ function Transactions(_props: TransactionsProps) {
               disabled={loading}
               slotProps={{
                 input: {
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 },
               }}
             />
@@ -497,7 +511,7 @@ function Transactions(_props: TransactionsProps) {
               disabled={loading}
               slotProps={{
                 input: {
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>,
                 },
               }}
             />
@@ -692,22 +706,21 @@ function Transactions(_props: TransactionsProps) {
                     </TableCell>
                     <TableCell>
                       <Box className="flex items-center gap-2">
-                        <Box
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0"
-                          style={{
-                            backgroundColor:
-                              row.user_id === 'user_001'
-                                ? '#6366f1'
-                                : row.user_id === 'user_002'
-                                  ? '#10b981'
-                                  : row.user_id === 'user_003'
-                                    ? '#f59e0b'
-                                    : '#ef4444',
+                        <Avatar
+                          src={isValidImageUrl(row.user_profile) ? row.user_profile : undefined}
+                          alt={`${row.user_id} profile`}
+                          sx={{
+                            width: 28,
+                            height: 28,
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            bgcolor: USER_AVATAR_COLORS[row.user_id] ?? '#64748b',
+                            color: '#ffffff',
+                            flexShrink: 0,
                           }}
-                          aria-hidden="true"
                         >
-                          {row.user_id.replace('user_', '')}
-                        </Box>
+                          {isValidImageUrl(row.user_profile) ? undefined : getAvatarFallback(row.user_id)}
+                        </Avatar>
                         <Typography
                           variant="body2"
                           className="!font-medium !text-slate-700 !truncate"
