@@ -66,8 +66,6 @@ function triggerBrowserDownload(blob: Blob, suggestedName: string): void {
   }
 }
 
-
-
 function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps) {
   const snackbar = useSnackbar();
   const [selected, setSelected] = useState<Set<ExportColumnKey>>(new Set(ALL_KEYS));
@@ -182,54 +180,95 @@ function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps
       fullWidth
       aria-labelledby="export-dialog-title"
     >
-      <DialogTitle id="export-dialog-title" className="!px-6 !pt-5 !pb-0">
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5, alignItems: 'center' }}>
+      <DialogTitle id="export-dialog-title" sx={{ px: 4, pt: 3.5, pb: 0 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'center' }}>
           <Box
-            className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center"
+            sx={{
+              width: 44,
+              height: 44,
+              borderRadius: 3,
+              bgcolor: 'rgba(59,130,246,0.12)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: '1px solid rgba(59,130,246,0.25)',
+            }}
             aria-hidden="true"
           >
-            <FileDownloadIcon className="!text-blue-600" />
+            <FileDownloadIcon sx={{ color: '#60a5fa' }} />
           </Box>
           <div>
-            <Typography variant="h6" className="!font-bold !text-slate-900 !leading-tight">
+            <Typography
+              variant="h5"
+              sx={{ fontWeight: 700, color: '#e5e9f2', lineHeight: 1.2 }}
+            >
               Export Transactions
             </Typography>
-            <Typography variant="caption" className="!text-slate-500">
+            <Typography variant="caption" sx={{ color: '#8892b0' }}>
               Customize columns and download CSV
             </Typography>
           </div>
         </Box>
       </DialogTitle>
 
-      <Divider className="!mt-4" />
+      <Divider sx={{ mt: 3, borderColor: '#263253' }} />
 
-      <DialogContent dividers className="!px-6 !py-5">
+      <DialogContent dividers sx={{ px: 4, py: 3.5 }}>
         {summary.length > 0 && (
-          <Box className="mb-4 rounded-xl border border-blue-100 bg-blue-50/50 p-3">
-            <Typography variant="overline" className="!text-blue-700 !font-semibold">
+          <Box
+            sx={{
+              mb: 3,
+              borderRadius: 2.5,
+              border: '1px solid rgba(59,130,246,0.2)',
+              bgcolor: 'rgba(59,130,246,0.06)',
+              p: 2.5,
+            }}
+          >
+            <Typography
+              variant="overline"
+              sx={{ color: '#60a5fa', fontWeight: 700, letterSpacing: '0.08em' }}
+            >
               Current Filters
             </Typography>
-            <Box className="mt-1 flex flex-wrap gap-1.5">
+            <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
               {summary.map((s, i) => (
                 <Typography
                   key={i}
                   variant="caption"
-                  className="inline-flex items-center px-2 py-0.5 rounded-md bg-white border border-blue-100 text-blue-800 !font-medium"
+                  sx={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    px: 1.5,
+                    py: 0.5,
+                    borderRadius: 1.5,
+                    bgcolor: '#151d33',
+                    border: '1px solid #263253',
+                    color: '#aab4cf',
+                    fontWeight: 500,
+                  }}
                 >
                   {s}
                 </Typography>
               ))}
             </Box>
-            <Typography variant="caption" className="!mt-2 block !text-blue-600">
+            <Typography variant="caption" sx={{ mt: 1.5, display: 'block', color: '#8892b0' }}>
               Export will include all matching rows, not only the current page.
             </Typography>
           </Box>
         )}
 
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1, mb: 1.5, alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 1,
+            mb: 1.5,
+            alignItems: 'center',
+          }}
+        >
           <Typography
             variant="subtitle2"
-            className="!font-semibold !text-slate-700 flex-1 self-center"
+            sx={{ fontWeight: 700, color: '#e5e9f2', flex: 1, alignSelf: 'center' }}
           >
             Columns to include
           </Typography>
@@ -239,8 +278,8 @@ function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps
               variant="text"
               startIcon={<SelectAllIcon />}
               onClick={selectAll}
-              className="!capitalize"
               disabled={loading}
+              sx={{ color: '#8892b0', '&:hover': { color: '#e5e9f2' } }}
             >
               Select all
             </Button>
@@ -251,8 +290,8 @@ function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps
               variant="text"
               startIcon={<ClearAllIcon />}
               onClick={clearAll}
-              className="!capitalize"
               disabled={loading}
+              sx={{ color: '#8892b0', '&:hover': { color: '#e5e9f2' } }}
             >
               Clear
             </Button>
@@ -265,11 +304,18 @@ function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps
               <FormControlLabel
                 key={col.key}
                 label={
-                  <Box className="flex items-center justify-between flex-1">
-                    <Typography variant="body2" className="!font-medium !text-slate-700">
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flex: 1,
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ fontWeight: 500, color: '#e5e9f2' }}>
                       {col.label}
                     </Typography>
-                    <Typography variant="caption" className="!text-slate-400">
+                    <Typography variant="caption" sx={{ color: '#64748b' }}>
                       CSV header: {col.csvHeader}
                     </Typography>
                   </Box>
@@ -283,36 +329,51 @@ function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps
                     aria-label={`Include ${col.label} column in export`}
                   />
                 }
-                className="!mr-0 [&>span:first-child]:!py-1"
+                sx={{ mr: 0, '& .MuiFormControlLabel-label': { width: '100%' }, py: 0.5 }}
               />
             ))}
           </FormGroup>
           {noColError && (
-            <Typography variant="caption" color="error" className="!mt-1 block">
+            <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
               Please select at least one column to export.
             </Typography>
           )}
         </FormControl>
 
         {error !== null && (
-          <Alert severity="error" className="!mt-4 !rounded-xl">
+          <Alert severity="error" sx={{ mt: 3, borderRadius: 2.5 }}>
             <AlertTitle>Export failed</AlertTitle>
             {error}
           </Alert>
         )}
 
         {loading && (
-          <Box className="!mt-4" role="status" aria-live="polite">
+          <Box sx={{ mt: 3 }} role="status" aria-live="polite">
             <LinearProgress />
-            <Typography variant="caption" className="!mt-2 block !text-slate-500 text-center">
+            <Typography
+              variant="caption"
+              sx={{ mt: 1.5, display: 'block', color: '#8892b0', textAlign: 'center' }}
+            >
               Generating CSV file...
             </Typography>
           </Box>
         )}
       </DialogContent>
 
-      <DialogActions className="!px-6 !py-4">
-        <Button onClick={onClose} disabled={loading} className="!capitalize">
+      <DialogActions sx={{ px: 4, py: 3 }}>
+        <Button
+          onClick={onClose}
+          disabled={loading}
+          sx={{
+            borderColor: '#263253',
+            color: '#aab4cf',
+            '&:hover': {
+              bgcolor: 'rgba(255,255,255,0.04)',
+              color: '#e5e9f2',
+            },
+          }}
+          variant="outlined"
+        >
           Cancel
         </Button>
         <Button
@@ -320,7 +381,10 @@ function ExportCsvDialog({ open, onClose, filters, on401 }: ExportCsvDialogProps
           startIcon={<FileDownloadIcon />}
           onClick={handleDownload}
           disabled={loading}
-          className="!capitalize"
+          sx={{
+            fontWeight: 600,
+            boxShadow: '0 6px 18px -6px rgba(59,130,246,0.55)',
+          }}
           aria-label="download CSV file with selected columns"
         >
           {loading ? 'Exporting...' : 'Download CSV'}

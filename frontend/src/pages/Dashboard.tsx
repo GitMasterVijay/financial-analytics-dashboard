@@ -195,13 +195,25 @@ function Dashboard() {
     filters.endDate !== undefined;
 
   return (
-    <Box className="w-full flex flex-col gap-6">
+    <Box className="w-full flex flex-col gap-5 sm:gap-6">
       <Box className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <Typography variant="h4" className="!font-bold !text-slate-900">
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 800,
+              fontSize: { xs: '1.6rem', sm: '1.85rem' },
+              letterSpacing: '-0.03em',
+            }}
+            className="!text-text-primary"
+          >
             Dashboard
           </Typography>
-          <Typography variant="body1" className="!text-slate-500 mt-1">
+          <Typography
+            variant="body1"
+            sx={{ fontSize: '0.92rem', mt: 0.5 }}
+            className="!text-text-secondary"
+          >
             Welcome back — here&apos;s how your transactions are performing.
           </Typography>
         </div>
@@ -214,7 +226,15 @@ function Dashboard() {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 disabled={allLoading}
-                className="!capitalize"
+                sx={{
+                  borderColor: '#263253',
+                  color: '#aab4cf',
+                  '&:hover': {
+                    borderColor: '#334372',
+                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    color: '#e5e9f2',
+                  },
+                }}
               >
                 {allLoading ? 'Loading...' : 'Refresh'}
               </Button>
@@ -225,16 +245,27 @@ function Dashboard() {
 
       <Paper
         elevation={0}
-        className="!rounded-2xl !border !border-slate-200 !bg-white !shadow-sm"
+        sx={{
+          borderRadius: 4,
+          border: '1px solid #263253',
+          bgcolor: '#151d33',
+          boxShadow: 'none',
+        }}
       >
         <Box className="p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-2 text-slate-600">
-            <FilterListIcon aria-hidden="true" />
-            <Typography variant="subtitle2" className="!font-semibold">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <FilterListIcon aria-hidden="true" sx={{ color: '#7683a6' }} />
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }} className="!text-text-primary">
               Filters
             </Typography>
             {anyFilterActive && (
-              <span className="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold">
+              <span className="ml-1 inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-[0.7rem] font-bold"
+                style={{
+                  backgroundColor: 'rgba(59,130,246,0.14)',
+                  color: '#60a5fa',
+                  border: '1px solid rgba(59,130,246,0.3)',
+                }}
+              >
                 Active
               </span>
             )}
@@ -242,7 +273,7 @@ function Dashboard() {
 
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             <FormControl size="small" fullWidth>
-              <InputLabel id="user-filter-label">User</InputLabel>
+              <InputLabel id="user-filter-label" sx={{ color: '#aab4cf' }}>User</InputLabel>
               <Select
                 labelId="user-filter-label"
                 label="User"
@@ -306,17 +337,24 @@ function Dashboard() {
           <div className="flex items-center gap-2 sm:self-stretch sm:mt-0 sm:items-end flex-wrap">
             <Button
               variant="outlined"
-              color="inherit"
               size="medium"
               startIcon={<RestartAltIcon />}
               onClick={handleReset}
-              className="!capitalize"
               disabled={
                 allLoading ||
                 (draftFilters.userId === undefined &&
                   draftFilters.startDate === undefined &&
                   draftFilters.endDate === undefined)
               }
+              sx={{
+                borderColor: '#263253',
+                color: '#aab4cf',
+                '&:hover': {
+                  borderColor: '#334372',
+                  backgroundColor: 'rgba(255,255,255,0.03)',
+                  color: '#e5e9f2',
+                },
+              }}
             >
               Reset
             </Button>
@@ -324,7 +362,6 @@ function Dashboard() {
               variant="contained"
               size="medium"
               onClick={handleApply}
-              className="!capitalize"
               disabled={allLoading}
             >
               Apply
@@ -335,8 +372,8 @@ function Dashboard() {
 
       {error !== null && (
         <Alert
-          severity="error"
-          className="!rounded-2xl"
+          severity={staleIndicator ? 'warning' : 'error'}
+          sx={{ borderRadius: 4 }}
           action={
             <Box className="flex items-center gap-1">
               <Tooltip title="Retry loading">
@@ -358,7 +395,7 @@ function Dashboard() {
           <AlertTitle>{staleIndicator ? 'Some data failed to load' : "Couldn't load dashboard"}</AlertTitle>
           {error}
           {staleIndicator && (
-            <Typography variant="caption" className="!block !mt-1 !opacity-90">
+            <Typography variant="caption" sx={{ display: 'block', mt: 1, opacity: 0.9 }}>
               Previously loaded data is still displayed but may be stale.
             </Typography>
           )}
@@ -397,7 +434,14 @@ function Dashboard() {
       <Box className="grid grid-cols-1 xl:grid-cols-3 gap-5 sm:gap-6">
         <Paper
           elevation={0}
-          className="!rounded-2xl !border !border-slate-200 !bg-white !shadow-sm xl:col-span-2 !overflow-hidden"
+          sx={{
+            borderRadius: 4,
+            border: '1px solid #263253',
+            bgcolor: '#151d33',
+            boxShadow: 'none',
+            overflow: 'hidden',
+          }}
+          className="xl:col-span-2"
         >
           <Box className="p-4 sm:p-5 md:p-6">
             <RevenueExpenseChart data={trend} loading={loadingTrend} />
@@ -406,7 +450,13 @@ function Dashboard() {
 
         <Paper
           elevation={0}
-          className="!rounded-2xl !border !border-slate-200 !bg-white !shadow-sm !overflow-hidden"
+          sx={{
+            borderRadius: 4,
+            border: '1px solid #263253',
+            bgcolor: '#151d33',
+            boxShadow: 'none',
+            overflow: 'hidden',
+          }}
         >
           <Box className="p-4 sm:p-5 md:p-6">
             <CategoryBreakdownChart data={breakdown} loading={loadingBreakdown} />
@@ -416,7 +466,13 @@ function Dashboard() {
 
       <Paper
         elevation={0}
-        className="!rounded-2xl !border !border-slate-200 !bg-white !shadow-sm !overflow-hidden"
+        sx={{
+          borderRadius: 4,
+          border: '1px solid #263253',
+          bgcolor: '#151d33',
+          boxShadow: 'none',
+          overflow: 'hidden',
+        }}
       >
         <Box className="p-4 sm:p-5 md:p-6">
           <RecentTransactions

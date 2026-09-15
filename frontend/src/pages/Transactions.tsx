@@ -1,7 +1,6 @@
 import {
   Alert,
   AlertTitle,
-  Avatar,
   Box,
   Button,
   Chip,
@@ -42,6 +41,7 @@ import type {
 } from '../types/transaction';
 import type { ExportFilterState } from '../types/exportCsv';
 import ExportCsvDialog from '../components/ExportCsvDialog';
+import UserAvatar from '../components/UserAvatar';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from '../context/SnackbarContext';
@@ -94,22 +94,6 @@ function formatDate(iso: string): string {
 function formatCurrency(value: number): string {
   return formatCurrencyINR(value);
 }
-
-function isValidImageUrl(url: string | undefined | null): url is string {
-  if (!url) return false;
-  return typeof url === 'string' && (url.startsWith('http://') || url.startsWith('https://'));
-}
-
-function getAvatarFallback(userId: string): string {
-  return userId.replace('user_', '');
-}
-
-const USER_AVATAR_COLORS: Record<string, string> = {
-  user_001: '#6366f1',
-  user_002: '#10b981',
-  user_003: '#f59e0b',
-  user_004: '#ef4444',
-};
 
 interface TransactionsProps {
   onNavigate?: unknown;
@@ -290,14 +274,40 @@ function Transactions(_props: TransactionsProps) {
 
   const showEmptyState = !loading && rows.length === 0 && error === null;
 
+  const outlineBtnSx = {
+    borderColor: '#263253',
+    color: '#aab4cf',
+    '&:hover': {
+      borderColor: '#3b82f6',
+      bgcolor: 'rgba(59,130,246,0.08)',
+      color: '#e5e9f2',
+    },
+  };
+
   return (
-    <Box className="w-full flex flex-col gap-5 sm:gap-6">
-      <Box className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+    <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: { xs: 4, sm: 5 } }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'flex-start', md: 'flex-end' },
+          justifyContent: 'space-between',
+          gap: 3,
+        }}
+      >
         <div>
-          <Typography variant="h4" className="!font-bold !text-slate-900">
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: 800,
+              color: '#e5e9f2',
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+            }}
+          >
             Transactions
           </Typography>
-          <Typography variant="body1" className="!text-slate-500 mt-1">
+          <Typography variant="body1" sx={{ color: '#8892b0', mt: 1 }}>
             Browse, filter, and export company transaction records.
           </Typography>
         </div>
@@ -310,7 +320,7 @@ function Transactions(_props: TransactionsProps) {
                 startIcon={<RefreshIcon />}
                 onClick={handleRetry}
                 disabled={loading}
-                className="!capitalize"
+                sx={outlineBtnSx}
               >
                 {loading ? 'Loading...' : 'Refresh'}
               </Button>
@@ -323,7 +333,10 @@ function Transactions(_props: TransactionsProps) {
                 size="medium"
                 startIcon={<FileDownloadIcon />}
                 onClick={() => setExportOpen(true)}
-                className="!capitalize"
+                sx={{
+                  fontWeight: 600,
+                  boxShadow: '0 6px 18px -6px rgba(59,130,246,0.55)',
+                }}
               >
                 Export CSV
               </Button>
@@ -334,13 +347,32 @@ function Transactions(_props: TransactionsProps) {
 
       <Paper
         elevation={0}
-        className="!rounded-2xl !border !border-slate-200 !bg-white !shadow-sm"
+        sx={{
+          borderRadius: 3,
+          border: '1px solid #263253',
+          bgcolor: '#151d33',
+          boxShadow: '0 4px 16px -8px rgba(0,0,0,0.4)',
+          overflow: 'hidden',
+        }}
       >
-        <Box className="p-4 sm:p-5 flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-2 text-slate-600">
-              <SearchIcon aria-hidden="true" />
-              <Typography variant="subtitle2" className="!font-semibold">
+        <Box sx={{ p: { xs: 3, sm: 4 }, display: 'flex', flexDirection: 'column', gap: 3 }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column' as const,
+            }}
+            className="sm:flex-row sm:items-center sm:justify-between gap-3"
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                color: '#aab4cf',
+              }}
+            >
+              <SearchIcon aria-hidden="true" fontSize="small" />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#e5e9f2' }}>
                 Filters
               </Typography>
               {anyFilterActive && (
@@ -349,7 +381,7 @@ function Transactions(_props: TransactionsProps) {
                   label="Active"
                   color="primary"
                   variant="outlined"
-                  className="!rounded-full"
+                  sx={{ borderRadius: 999, fontWeight: 600 }}
                 />
               )}
             </div>
@@ -359,8 +391,14 @@ function Transactions(_props: TransactionsProps) {
                 size="small"
                 startIcon={<RestartAltIcon />}
                 onClick={handleReset}
-                className="!capitalize"
                 disabled={loading || (!anyFilterActive && !anyDraftActive)}
+                sx={{
+                  color: '#8892b0',
+                  '&:hover': {
+                    bgcolor: 'rgba(255,255,255,0.04)',
+                    color: '#e5e9f2',
+                  },
+                }}
               >
                 Reset Filters
               </Button>
@@ -368,15 +406,25 @@ function Transactions(_props: TransactionsProps) {
                 variant="contained"
                 size="small"
                 onClick={handleApply}
-                className="!capitalize"
                 disabled={loading}
+                sx={{ fontWeight: 600 }}
               >
                 Apply
               </Button>
             </div>
           </div>
 
-          <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              },
+              gap: 2,
+            }}
+          >
             <TextField
               size="small"
               fullWidth
@@ -456,7 +504,17 @@ function Transactions(_props: TransactionsProps) {
             </FormControl>
           </Box>
 
-          <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              },
+              gap: 2,
+            }}
+          >
             <TextField
               size="small"
               fullWidth
@@ -522,7 +580,7 @@ function Transactions(_props: TransactionsProps) {
       {error !== null && (
         <Alert
           severity={staleData ? 'warning' : 'error'}
-          className="!rounded-2xl"
+          sx={{ borderRadius: 3 }}
           action={
             <Box className="flex items-center gap-1">
               <Tooltip title="Retry loading">
@@ -550,24 +608,47 @@ function Transactions(_props: TransactionsProps) {
 
       <Paper
         elevation={0}
-        className="!rounded-2xl !border !border-slate-200 !bg-white !shadow-sm !overflow-hidden"
+        sx={{
+          borderRadius: 3,
+          border: '1px solid #263253',
+          bgcolor: '#151d33',
+          boxShadow: '0 4px 16px -8px rgba(0,0,0,0.4)',
+          overflow: 'hidden',
+        }}
       >
-        <Box className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 sm:px-5 py-3 border-b border-slate-100">
-          <Typography variant="subtitle2" className="!font-semibold !text-slate-700">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'flex-start', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+            px: { xs: 3, sm: 4 },
+            py: 2.5,
+            borderBottom: '1px solid #263253',
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 600, color: '#aab4cf' }}
+          >
             {loading ? (
               <Skeleton variant="text" width={180} />
             ) : pagination ? (
               <>
                 Showing {(pagination.page - 1) * pagination.limit + 1}-
                 {Math.min(pagination.page * pagination.limit, pagination.total)} of{' '}
-                {pagination.total} transactions
+                <Box component="span" sx={{ color: '#e5e9f2', fontWeight: 700 }}>
+                  {pagination.total}
+                </Box>{' '}
+                transactions
                 {staleData && (
                   <Chip
                     size="small"
                     variant="outlined"
                     color="warning"
                     label="Stale"
-                    className="!ml-2"
+                    sx={{ ml: 1 }}
                   />
                 )}
               </>
@@ -594,9 +675,16 @@ function Transactions(_props: TransactionsProps) {
         </Box>
 
         <TableContainer sx={{ maxHeight: 'none' }}>
-          <Table className="!min-w-[780px]" stickyHeader={false}>
-            <TableHead className="!bg-slate-50">
-              <TableRow>
+          <Table sx={{ minWidth: 780 }} stickyHeader={false}>
+            <TableHead>
+              <TableRow
+                sx={{
+                  bgcolor: '#1a2440',
+                  '& .MuiTableCell-head': {
+                    borderBottom: '1px solid #263253',
+                  },
+                }}
+              >
                 {ALLOWED_SORT_FIELDS.map((field) => {
                   const labelMap: Record<TransactionSortField, string> = {
                     id: 'ID',
@@ -611,13 +699,21 @@ function Transactions(_props: TransactionsProps) {
                     <TableCell
                       key={field}
                       sortDirection={active ? sortOrder : false}
-                      className="!py-3 !font-bold !text-slate-600 !text-xs !uppercase !tracking-wide !border-b !border-slate-200"
+                      sx={{
+                        py: 2,
+                        px: 2.5,
+                        fontWeight: 800,
+                        color: '#aab4cf',
+                        fontSize: '0.72rem',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
+                      }}
                     >
                       <TableSortLabel
                         active={active}
                         direction={active ? sortOrder : 'asc'}
                         onClick={() => handleSortChange(field)}
-                        className="!whitespace-nowrap"
+                        sx={{ whiteSpace: 'nowrap' }}
                       >
                         {labelMap[field]}
                       </TableSortLabel>
@@ -629,10 +725,20 @@ function Transactions(_props: TransactionsProps) {
             <TableBody>
               {loading ? (
                 skeletonRows.map((_, i) => (
-                  <TableRow key={`skel-${i}`}>
+                  <TableRow
+                    key={`skel-${i}`}
+                    sx={{
+                      '& .MuiTableCell-body': {
+                        borderBottom: '1px solid #1e2a4a',
+                      },
+                    }}
+                  >
                     {ALLOWED_SORT_FIELDS.map((f) => (
-                      <TableCell key={f} className="!py-3">
-                        <Skeleton variant="text" width={f === 'user_id' ? 110 : 85} />
+                      <TableCell key={f} sx={{ py: 2.5 }}>
+                        <Skeleton
+                          variant="text"
+                          width={f === 'user_id' ? 110 : 85}
+                        />
                       </TableCell>
                     ))}
                   </TableRow>
@@ -641,15 +747,28 @@ function Transactions(_props: TransactionsProps) {
                 <TableRow>
                   <TableCell
                     colSpan={ALLOWED_SORT_FIELDS.length}
-                    className="!py-16 !border-b-0"
+                    sx={{ py: 16, borderBottom: 'none' }}
                   >
-                    <Box className="flex flex-col items-center justify-center text-slate-500 px-4 text-center">
-                      <Typography variant="h6" className="!font-semibold !text-slate-700">
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#8892b0',
+                        px: 3,
+                        textAlign: 'center',
+                      }}
+                    >
+                      <Typography
+                        variant="h6"
+                        sx={{ fontWeight: 700, color: '#e5e9f2' }}
+                      >
                         {anyFilterActive
                           ? 'No transactions match your filters'
                           : 'No transactions found'}
                       </Typography>
-                      <Typography variant="body2" className="!mt-2 !text-slate-500">
+                      <Typography variant="body2" sx={{ mt: 1, color: '#8892b0' }}>
                         {anyFilterActive
                           ? 'Try adjusting or clearing your filters, or use different criteria.'
                           : 'Check back later for updated transaction records.'}
@@ -659,7 +778,7 @@ function Transactions(_props: TransactionsProps) {
                           variant="outlined"
                           size="small"
                           onClick={handleReset}
-                          className="!capitalize !mt-4"
+                          sx={{ mt: 3, ...outlineBtnSx }}
                         >
                           Clear filters
                         </Button>
@@ -672,16 +791,34 @@ function Transactions(_props: TransactionsProps) {
                   <TableRow
                     key={row.id}
                     hover
-                    className="!h-[60px] [&>td]:!border-b !border-b-slate-100"
+                    sx={{
+                      height: 60,
+                      '& .MuiTableCell-body': {
+                        borderBottom: '1px solid #1e2a4a',
+                      },
+                      transition: 'background-color 120ms ease',
+                      '&:hover': {
+                        bgcolor: 'rgba(255,255,255,0.02)',
+                      },
+                    }}
                   >
-                    <TableCell className="!font-mono !text-slate-700">#{row.id}</TableCell>
-                    <TableCell className="!text-slate-600">{formatDate(row.date)}</TableCell>
                     <TableCell
-                      className={
-                        row.category === 'Revenue'
-                          ? '!font-bold !text-emerald-700'
-                          : '!font-bold !text-rose-700'
-                      }
+                      sx={{
+                        fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                        color: '#aab4cf',
+                        fontWeight: 500,
+                      }}
+                    >
+                      #{row.id}
+                    </TableCell>
+                    <TableCell sx={{ color: '#cbd5e1' }}>{formatDate(row.date)}</TableCell>
+                    <TableCell
+                      sx={{
+                        fontWeight: 800,
+                        color:
+                          row.category === 'Revenue' ? '#34d399' : '#f87171',
+                        fontSize: '0.95rem',
+                      }}
                     >
                       {row.category === 'Revenue' ? '+' : '\u2212'}
                       {formatCurrency(row.amount)}
@@ -692,7 +829,12 @@ function Transactions(_props: TransactionsProps) {
                         label={row.category}
                         color={row.category === 'Revenue' ? 'success' : 'error'}
                         variant="outlined"
-                        sx={{ fontWeight: 600, fontSize: '0.72rem', height: 24 }}
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '0.72rem',
+                          height: 24,
+                          borderRadius: 999,
+                        }}
                       />
                     </TableCell>
                     <TableCell>
@@ -701,29 +843,36 @@ function Transactions(_props: TransactionsProps) {
                         label={row.status}
                         color={row.status === 'Paid' ? 'primary' : 'warning'}
                         variant="outlined"
-                        sx={{ fontWeight: 500, fontSize: '0.72rem', height: 24 }}
+                        sx={{
+                          fontWeight: 500,
+                          fontSize: '0.72rem',
+                          height: 24,
+                          borderRadius: 999,
+                        }}
                       />
                     </TableCell>
                     <TableCell>
-                      <Box className="flex items-center gap-2">
-                        <Avatar
-                          src={isValidImageUrl(row.user_profile) ? row.user_profile : undefined}
-                          alt={`${row.user_id} profile`}
-                          sx={{
-                            width: 28,
-                            height: 28,
-                            fontSize: '0.7rem',
-                            fontWeight: 700,
-                            bgcolor: USER_AVATAR_COLORS[row.user_id] ?? '#64748b',
-                            color: '#ffffff',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {isValidImageUrl(row.user_profile) ? undefined : getAvatarFallback(row.user_id)}
-                        </Avatar>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 2,
+                        }}
+                      >
+                        <UserAvatar
+                          src={row.user_profile}
+                          userId={row.user_id}
+                          size={28}
+                        />
                         <Typography
                           variant="body2"
-                          className="!font-medium !text-slate-700 !truncate"
+                          sx={{
+                            fontWeight: 600,
+                            color: '#e5e9f2',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
                         >
                           {row.user_id}
                         </Typography>
@@ -736,20 +885,51 @@ function Transactions(_props: TransactionsProps) {
           </Table>
         </TableContainer>
 
-        <Box className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 px-4 sm:px-5 py-4 border-t border-slate-100">
-          <Typography variant="caption" className="!text-slate-500 text-center sm:text-left">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column-reverse', sm: 'row' },
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 3,
+            px: { xs: 3, sm: 4 },
+            py: 3,
+            borderTop: '1px solid #263253',
+            bgcolor: 'rgba(0,0,0,0.12)',
+          }}
+        >
+          <Typography
+            variant="caption"
+            sx={{
+              color: '#64748b',
+              textAlign: { xs: 'center', sm: 'left' },
+              fontWeight: 500,
+            }}
+          >
             {loading ? (
               <Skeleton variant="text" width={220} />
             ) : pagination ? (
               <>
-                Page {pagination.page} of {pagination.totalPages} · Total {pagination.total}{' '}
+                Page {pagination.page} of{' '}
+                <Box component="span" sx={{ color: '#aab4cf', fontWeight: 600 }}>
+                  {pagination.totalPages}
+                </Box>{' '}
+                · Total{' '}
+                <Box component="span" sx={{ color: '#aab4cf', fontWeight: 700 }}>
+                  {pagination.total}
+                </Box>{' '}
                 records
               </>
             ) : (
               showEmptyState ? 'No records to display' : ''
             )}
           </Typography>
-          <Box className="flex justify-center sm:justify-end">
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: { xs: 'center', sm: 'flex-end' },
+            }}
+          >
             {pagination && pagination.totalPages > 1 && (
               <Pagination
                 size="small"

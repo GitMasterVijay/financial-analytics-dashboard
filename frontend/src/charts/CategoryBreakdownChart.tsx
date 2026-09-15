@@ -42,23 +42,75 @@ function CategoryBreakdownChart({
     <Box className="w-full">
       <Box className="flex items-end justify-between mb-4">
         <div>
-          <Typography variant="h6" className="!font-bold !text-slate-800">
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 700, color: '#e5e9f2', lineHeight: 1.2 }}
+          >
             Category Breakdown
           </Typography>
-          <Typography variant="body2" className="!text-slate-500">
+          <Typography
+            variant="body2"
+            sx={{ color: '#8892b0', mt: 0.5 }}
+          >
             Distribution by transaction type
           </Typography>
         </div>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          {Object.entries(COLORS).map(([name, color]) => (
+            <Box
+              key={name}
+              sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.75,
+                px: 1.5,
+                py: 0.75,
+                borderRadius: 999,
+                bgcolor: 'rgba(255,255,255,0.02)',
+                border: '1px solid #263253',
+              }}
+            >
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: color,
+                  boxShadow: `0 0 8px ${color}99`,
+                }}
+              />
+              <Typography
+                variant="caption"
+                sx={{ color: '#aab4cf', fontWeight: 600 }}
+              >
+                {name}
+              </Typography>
+            </Box>
+          ))}
+        </Box>
       </Box>
 
       {isEmpty ? (
         <Box
-          className="w-full h-[320px] sm:h-[380px] rounded-xl border border-dashed border-slate-300 flex flex-col items-center justify-center bg-slate-50"
+          sx={{
+            width: '100%',
+            height: { xs: 320, sm: 380 },
+            borderRadius: 2.5,
+            border: '1px dashed #263253',
+            bgcolor: 'rgba(255,255,255,0.01)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
         >
-          <Typography variant="body1" className="!text-slate-500 !font-medium">
+          <Typography
+            variant="body1"
+            sx={{ color: '#aab4cf', fontWeight: 600 }}
+          >
             No category data available
           </Typography>
-          <Typography variant="caption" className="!text-slate-400 mt-1">
+          <Typography variant="caption" sx={{ color: '#64748b', mt: 0.5 }}>
             No transactions match the current filters
           </Typography>
         </Box>
@@ -75,7 +127,8 @@ function CategoryBreakdownChart({
                 paddingAngle={3}
                 dataKey="amount"
                 nameKey="category"
-                strokeWidth={0}
+                stroke="#0b1020"
+                strokeWidth={2}
               >
                 {data.map((entry) => (
                   <Cell
@@ -92,8 +145,21 @@ function CategoryBreakdownChart({
                 }}
                 contentStyle={{
                   borderRadius: 12,
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 10px 25px -10px rgba(15,23,42,0.15)',
+                  backgroundColor: '#151d33',
+                  border: '1px solid #263253',
+                  boxShadow: '0 12px 28px -12px rgba(0,0,0,0.6)',
+                  color: '#e5e9f2',
+                }}
+                labelStyle={{
+                  color: '#aab4cf',
+                  fontWeight: 600,
+                  borderBottom: '1px solid #263253',
+                  marginBottom: 4,
+                  paddingBottom: 4,
+                }}
+                itemStyle={{
+                  color: '#e5e9f2',
+                  fontWeight: 500,
                 }}
               />
               <Legend
@@ -104,9 +170,17 @@ function CategoryBreakdownChart({
                   const pct =
                     row && total > 0 ? ((row.amount / total) * 100).toFixed(1) : '0.0';
                   return (
-                    <span className="text-sm text-slate-600">
+                    <span
+                      style={{
+                        color: '#aab4cf',
+                        fontSize: '0.85rem',
+                        fontWeight: 500,
+                      }}
+                    >
                       {value}
-                      <span className="text-slate-400 ml-2">({pct}%)</span>
+                      <span style={{ color: '#64748b', marginLeft: 8 }}>
+                        ({pct}%)
+                      </span>
                     </span>
                   );
                 }}
@@ -114,32 +188,71 @@ function CategoryBreakdownChart({
             </PieChart>
           </ResponsiveContainer>
 
-          <Box className="grid grid-cols-2 gap-3 mt-2">
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+              gap: 1.5,
+              mt: 2,
+            }}
+          >
             {data.map((entry) => {
               const pct = total > 0 ? ((entry.amount / total) * 100).toFixed(1) : '0.0';
+              const accent = COLORS[entry.category] ?? '#94a3b8';
               return (
                 <Box
                   key={entry.category}
-                  className="rounded-xl p-3 bg-slate-50 border border-slate-100"
+                  sx={{
+                    borderRadius: 2.5,
+                    p: 2.5,
+                    bgcolor: 'rgba(255,255,255,0.02)',
+                    border: '1px solid #263253',
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
                 >
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-3 h-3 rounded-full"
-                      style={{
-                        backgroundColor: COLORS[entry.category] ?? '#94a3b8',
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      top: -20,
+                      right: -20,
+                      width: 80,
+                      height: 80,
+                      borderRadius: '50%',
+                      background: `radial-gradient(circle, ${accent}33 0%, transparent 70%)`,
+                      pointerEvents: 'none',
+                    }}
+                  />
+                  <Box className="flex items-center gap-2">
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        bgcolor: accent,
+                        boxShadow: `0 0 8px ${accent}cc`,
+                        flexShrink: 0,
                       }}
                     />
-                    <Typography variant="caption" className="!text-slate-500">
+                    <Typography
+                      variant="caption"
+                      sx={{ color: '#8892b0', fontWeight: 600, letterSpacing: 0.3 }}
+                    >
                       {entry.category}
                     </Typography>
-                  </div>
+                  </Box>
                   <Typography
-                    variant="h6"
-                    className="!font-bold !text-slate-800 mt-1"
+                    variant="h5"
+                    sx={{
+                      fontWeight: 800,
+                      color: accent,
+                      mt: 1,
+                      lineHeight: 1.2,
+                    }}
                   >
                     {formatCurrency(entry.amount)}
                   </Typography>
-                  <Typography variant="caption" className="!text-slate-500">
+                  <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 500 }}>
                     {pct}% of total
                   </Typography>
                 </Box>

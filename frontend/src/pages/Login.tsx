@@ -21,10 +21,70 @@ import { useAuth } from '../context/AuthContext';
 import { type LoginFormData, loginSchema } from '../types/auth';
 import { useSnackbar } from '../context/SnackbarContext';
 
-const theme = createTheme({
+const darkLoginTheme = createTheme({
   palette: {
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
+      main: '#3b82f6',
+      light: '#60a5fa',
+      dark: '#2563eb',
+    },
+    success: { main: '#10b981' },
+    error: { main: '#ef4444' },
+    warning: { main: '#f59e0b' },
+    info: { main: '#8b5cf6' },
+    background: {
+      default: '#0b1020',
+      paper: '#151d33',
+    },
+    text: {
+      primary: '#e5e9f2',
+      secondary: '#aab4cf',
+    },
+    divider: '#263253',
+  },
+  typography: {
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    button: { textTransform: 'none', fontWeight: 600 },
+  },
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#263253',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#3b82f6',
+          },
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: { slotProps: { inputLabel: { shrink: true } } },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 12,
+        },
+        contained: {
+          boxShadow: '0 6px 18px -6px rgba(59,130,246,0.55)',
+        },
+      },
+    },
+    MuiPaper: {
+      styleOverrides: {
+        root: {
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiAlert: {
+      styleOverrides: {
+        root: { borderRadius: 12 },
+      },
     },
   },
 });
@@ -117,7 +177,7 @@ function Login() {
 
   if (isLoading) {
     return (
-      <ThemeProvider theme={theme}>
+      <ThemeProvider theme={darkLoginTheme}>
         <CssBaseline />
         <Box
           sx={{
@@ -127,10 +187,38 @@ function Login() {
             justifyContent: 'center',
             flexDirection: 'column',
             gap: 2,
-            bgcolor: '#f5f7fb',
+            bgcolor: '#0b1020',
+            position: 'relative',
+            overflow: 'hidden',
           }}
         >
-          <CircularProgress size={40} thickness={4} />
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '-10%',
+              left: '-10%',
+              width: '50%',
+              height: '50%',
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <Box
+            sx={{
+              position: 'absolute',
+              bottom: '-10%',
+              right: '-10%',
+              width: '50%',
+              height: '50%',
+              borderRadius: '50%',
+              background:
+                'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)',
+              pointerEvents: 'none',
+            }}
+          />
+          <CircularProgress size={44} thickness={4} />
           <Typography variant="body2" color="text.secondary">
             Verifying your session...
           </Typography>
@@ -144,161 +232,415 @@ function Login() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkLoginTheme}>
       <CssBaseline />
-      <Container component="main" maxWidth="sm">
+      <Container component="main" maxWidth="lg" disableGutters>
         <Box
           sx={{
             minHeight: '100vh',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            py: 4,
-            px: 2,
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            alignItems: 'stretch',
           }}
         >
-          <Paper
-            elevation={6}
+          <Box
             sx={{
-              width: '100%',
-              maxWidth: 440,
-              p: { xs: 3, sm: 4, md: 5 },
-              borderRadius: 2,
+              display: { xs: 'none', md: 'flex' },
+              flexDirection: 'column',
+              justifyContent: 'center',
+              p: 6,
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            <Box sx={{ mb: 4, textAlign: 'center' }}>
-              <Typography
-                component="h1"
-                variant="h4"
-                sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
-                  mb: 1,
-                  fontSize: { xs: '1.5rem', sm: '2rem' },
-                }}
-              >
-                Financial Analytics
-              </Typography>
-              <Typography
-                component="h2"
-                variant="h6"
-                sx={{
-                  fontWeight: 500,
-                  color: 'text.secondary',
-                  fontSize: { xs: '1rem', sm: '1.25rem' },
-                }}
-              >
-                Dashboard
-              </Typography>
-            </Box>
-
-            {infoMessage !== null && (
-              <Alert severity="info" sx={{ mb: 3 }} onClose={() => setInfoMessage(null)}>
-                {infoMessage}
-              </Alert>
-            )}
-
-            {errorMessage !== null && (
-              <Alert severity="error" sx={{ mb: 3 }}>
-                {errorMessage}
-              </Alert>
-            )}
-
             <Box
-              component="form"
-              onSubmit={handleSubmit(onSubmit)}
-              noValidate
-              sx={{ width: '100%' }}
-              aria-label="sign in form"
-            >
-              <TextField
-                {...register('email')}
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-                error={!!errors.email}
-                helperText={errors.email?.message}
-                disabled={isSubmitting}
-                sx={{ mb: 2 }}
-              />
+              sx={{
+                position: 'absolute',
+                top: '-15%',
+                left: '-20%',
+                width: '70%',
+                height: '60%',
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle, rgba(59,130,246,0.22) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+            <Box
+              sx={{
+                position: 'absolute',
+                bottom: '-20%',
+                right: '-15%',
+                width: '70%',
+                height: '60%',
+                borderRadius: '50%',
+                background:
+                  'radial-gradient(circle, rgba(16,185,129,0.18) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
 
-              <TextField
-                {...register('password')}
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                autoComplete="current-password"
-                error={!!errors.password}
-                helperText={errors.password?.message}
-                disabled={isSubmitting}
-                slotProps={{
-                  input: {
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label={showPassword ? 'hide password' : 'show password'}
-                          onClick={handleClickShowPassword}
-                          onMouseDown={handleMouseDownPassword}
-                          edge="end"
-                          disabled={isSubmitting}
-                          tabIndex={0}
-                        >
-                          {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-                sx={{ mb: 3 }}
-              />
-
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                size="large"
-                disabled={isSubmitting}
-                aria-disabled={isSubmitting}
+            <Box sx={{ position: 'relative', zIndex: 1 }}>
+              <Box
                 sx={{
-                  py: 1.5,
-                  fontWeight: 600,
-                  fontSize: '1rem',
-                  textTransform: 'none',
-                  '&:disabled': {
-                    opacity: 0.7,
-                  },
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 1.5,
+                  mb: 6,
                 }}
               >
-                {isSubmitting ? (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <CircularProgress size={20} color="inherit" thickness={5} />
-                    <span>Signing in...</span>
-                  </Box>
-                ) : (
-                  'Sign In'
-                )}
-              </Button>
-            </Box>
-          </Paper>
+                <Box
+                  sx={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: '14px',
+                    background:
+                      'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 10px 30px -8px rgba(16,185,129,0.6)',
+                  }}
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M3.5 19L8.5 12L12 16L17 9L20.5 13.5"
+                      stroke="white"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Box>
+                <Box>
+                  <Typography
+                    variant="h5"
+                    sx={{ fontWeight: 800, color: '#e5e9f2', letterSpacing: '-0.01em' }}
+                  >
+                    Fin<span style={{ color: '#34d399' }}>Flow</span>
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748b', letterSpacing: '0.08em' }}>
+                    ANALYTICS SUITE
+                  </Typography>
+                </Box>
+              </Box>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            align="center"
-            sx={{ mt: 4 }}
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 800,
+                  color: '#e5e9f2',
+                  lineHeight: 1.1,
+                  letterSpacing: '-0.03em',
+                  mb: 2,
+                  fontSize: { md: '2.75rem', lg: '3.25rem' },
+                }}
+              >
+                Financial clarity,
+                <br />
+                <Box
+                  component="span"
+                  sx={{
+                    background:
+                      'linear-gradient(90deg, #34d399 0%, #60a5fa 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }}
+                >
+                  delivered simply.
+                </Box>
+              </Typography>
+
+              <Typography variant="body1" sx={{ color: '#8892b0', maxWidth: 480, mb: 6 }}>
+                Unlock powerful insights into your company's revenue streams, expense
+                patterns, and savings trajectory — all in one secure analytics
+                workspace.
+              </Typography>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 2.5,
+                  maxWidth: 480,
+                }}
+              >
+                {[
+                  {
+                    title: 'Real-time analytics',
+                    desc: 'Live dashboards with filters, sorting, and precise INR formatting.',
+                    color: '#34d399',
+                  },
+                  {
+                    title: 'Granular transaction search',
+                    desc: 'Pinpoint records by user, category, status, amount, and date ranges.',
+                    color: '#60a5fa',
+                  },
+                  {
+                    title: 'Secure CSV export',
+                    desc: 'Export filtered reports for compliance and reconciliation workflows.',
+                    color: '#a78bfa',
+                  },
+                ].map((f) => (
+                  <Box
+                    key={f.title}
+                    sx={{
+                      display: 'flex',
+                      gap: 2,
+                      p: 2.5,
+                      borderRadius: 3,
+                      border: '1px solid #263253',
+                      bgcolor: 'rgba(255,255,255,0.02)',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        bgcolor: f.color,
+                        boxShadow: `0 0 10px ${f.color}`,
+                        mt: 1,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{ fontWeight: 700, color: '#e5e9f2', mb: 0.5 }}
+                      >
+                        {f.title}
+                      </Typography>
+                      <Typography variant="body2" sx={{ color: '#8892b0' }}>
+                        {f.desc}
+                      </Typography>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </Box>
+
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              py: 4,
+              px: 2,
+              position: 'relative',
+            }}
           >
-            Welcome back. Please sign in to access your analytics dashboard.
-          </Typography>
+            <Box
+              sx={{
+                display: { md: 'none' },
+                alignItems: 'center',
+                gap: 1.5,
+                mb: 5,
+              }}
+              className="!flex"
+            >
+              <Box
+                sx={{
+                  width: 40,
+                  height: 40,
+                  borderRadius: '12px',
+                  background:
+                    'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 8px 24px -6px rgba(16,185,129,0.5)',
+                }}
+              >
+                <svg
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M3.5 19L8.5 12L12 16L17 9L20.5 13.5"
+                    stroke="white"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Box>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 800, color: '#e5e9f2', letterSpacing: '-0.01em' }}
+              >
+                Fin<span style={{ color: '#34d399' }}>Flow</span>
+              </Typography>
+            </Box>
+
+            <Paper
+              elevation={0}
+              sx={{
+                width: '100%',
+                maxWidth: 460,
+                p: { xs: 3.5, sm: 5 },
+                borderRadius: 4,
+                border: '1px solid #263253',
+                boxShadow: '0 20px 60px -20px rgba(0,0,0,0.6)',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: -40,
+                  right: -40,
+                  width: 160,
+                  height: 160,
+                  borderRadius: '50%',
+                  background:
+                    'radial-gradient(circle, rgba(59,130,246,0.18) 0%, transparent 70%)',
+                  pointerEvents: 'none',
+                }}
+              />
+
+              <Box sx={{ mb: 4, textAlign: 'left' }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontWeight: 800,
+                    color: '#e5e9f2',
+                    mb: 1,
+                    fontSize: { xs: '1.6rem', sm: '1.9rem' },
+                    letterSpacing: '-0.02em',
+                    lineHeight: 1.15,
+                  }}
+                >
+                  Welcome back
+                </Typography>
+                <Typography variant="body1" sx={{ color: '#8892b0' }}>
+                  Sign in to access your analytics dashboard.
+                </Typography>
+              </Box>
+
+              {infoMessage !== null && (
+                <Alert
+                  severity="info"
+                  sx={{ mb: 3, borderRadius: 3 }}
+                  onClose={() => setInfoMessage(null)}
+                >
+                  {infoMessage}
+                </Alert>
+              )}
+
+              {errorMessage !== null && (
+                <Alert severity="error" sx={{ mb: 3, borderRadius: 3 }}>
+                  {errorMessage}
+                </Alert>
+              )}
+
+              <Box
+                component="form"
+                onSubmit={handleSubmit(onSubmit)}
+                noValidate
+                sx={{ width: '100%' }}
+                aria-label="sign in form"
+              >
+                <TextField
+                  {...register('email')}
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  autoFocus
+                  error={!!errors.email}
+                  helperText={errors.email?.message}
+                  disabled={isSubmitting}
+                  sx={{ mb: 2 }}
+                />
+
+                <TextField
+                  {...register('password')}
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  id="password"
+                  autoComplete="current-password"
+                  error={!!errors.password}
+                  helperText={errors.password?.message}
+                  disabled={isSubmitting}
+                  slotProps={{
+                    input: {
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            aria-label={showPassword ? 'hide password' : 'show password'}
+                            onClick={handleClickShowPassword}
+                            onMouseDown={handleMouseDownPassword}
+                            edge="end"
+                            disabled={isSubmitting}
+                            tabIndex={0}
+                          >
+                            {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                  sx={{ mb: 3.5 }}
+                />
+
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  size="large"
+                  disabled={isSubmitting}
+                  aria-disabled={isSubmitting}
+                  sx={{
+                    py: 1.75,
+                    fontWeight: 700,
+                    fontSize: '1rem',
+                    '&:disabled': { opacity: 0.7 },
+                  }}
+                >
+                  {isSubmitting ? (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <CircularProgress size={20} color="inherit" thickness={5} />
+                      <span>Signing in...</span>
+                    </Box>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </Box>
+            </Paper>
+
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              align="center"
+              sx={{ mt: 4, color: '#64748b', maxWidth: 460 }}
+            >
+              Secure workspace. Your session is protected with JWT authentication
+              and your data never leaves your infrastructure.
+            </Typography>
+          </Box>
         </Box>
       </Container>
     </ThemeProvider>
